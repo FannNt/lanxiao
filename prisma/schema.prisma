@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id       Int      @id @default(autoincrement())
+  name     String
+  email    String   @unique
+  password String
+  role     UserRole
+
+  orangTuaProfile   OrangTuaProfile?
+  pendampingProfile PendampingProfile?
+
+  pendampingId Int?
+  pendamping   User?  @relation("PendampingToOrangTua", fields: [pendampingId], references: [id])
+  orangTua     User[] @relation("PendampingToOrangTua")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrangTuaProfile {
+  id     Int  @id @default(autoincrement())
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id])
+
+  uniqueCode      String   @unique
+  usia            Int
+  riwayatPenyakit String[]
+
+  frekuensiOlahraga String?
+  sesakNapas        Boolean?
+  tujuanOlahraga    String?
+}
+
+model PendampingProfile {
+  id     Int  @id @default(autoincrement())
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id])
+
+  usia Int
+}
+
+enum UserRole {
+  ADMIN
+  ORANGTUA
+  PENDAMPING
+}
